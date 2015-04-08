@@ -1,0 +1,159 @@
+<?php
+/*
+Plugin Name: URL Demo Site
+Plugin URI: http://www.greenboxindonesia.com/
+Description: Management URL Website Base and Demo Link
+Version: 1.0
+Author: Albert Sukmono
+Author URI: http://www.albert.sukmono.web.id
+License: GPLv2
+*/
+
+add_action( 'init', 'create_urlproject' );
+
+function create_urlproject() {
+register_post_type( 'urlproject',
+array(
+	'labels' => array(
+	'name' => 'urlproject',
+	'singular_name' => 'urlproject',
+	'add_new' => 'Add New',
+	'add_new_item' => 'Add urlproject',
+	'edit' => 'Edit',
+	'edit_item' => 'Edit urlproject',
+	'new_item' => 'New urlproject',
+	'view' => 'View',
+	'view_item' => 'View urlproject',
+	'search_items' => 'Search urlproject',
+	'not_found' => 'No urlproject found',
+	'not_found_in_trash' =>
+	'No urlproject found in Trash',
+	'parent' => 'Parent urlproject'
+	),
+
+	'public' => true,
+	'publicly_queryable' => true,
+	'rewrite' => array( 'slug' => 'intl/dev/projectbase/preview/item','with_front' => false, 'hierarchical' => true),
+	'show_ui' => true,
+	'query_var' => true,
+	'capability_type' => 'post',
+	'menu_position' => 5,
+	'supports' => array( 'title', 'editor', 'comments',	'thumbnail' ),
+	'taxonomies' => array( 'urlproject_archive'),
+	'register_meta_box_cb' => 'urlproject_meta_box',
+	'has_archive' => true	
+)
+);
+flush_rewrite_rules();
+}
+
+/*
+ * HIDE THE EDITOR ON CERTAIN CUSTOM POST TYPES 
+*/
+add_action('admin_head', 'hide_editor'); 
+function hide_editor() { 
+	if(get_post_type() == 'urlproject')
+	{ ?> <style> #postdivrich { display:none; } </style> <?php } 
+}
+
+/*
+ * create taxonomy
+ */
+// hook into the init action and call create_staff_taxonomies when it fires
+add_action( 'init', 'urlproject_taxonomies', 0 );
+// create for the post type "urlproject"
+function urlproject_taxonomies() {
+    $labels = array(
+        'name'              => _x( 'urlproject Categories', 'taxonomy general name' ),
+        'singular_name'     => _x( 'urlproject Category', 'taxonomy singular name' ),
+        'search_items'      => __( 'Search Categories' ),
+        'all_items'         => __( 'All Categories' ),
+        'parent_item'       => __( 'Parent Category' ),
+        'parent_item_colon' => __( 'Parent Category:' ),
+        'edit_item'         => __( 'Edit Category' ),
+        'update_item'       => __( 'Update Category' ),
+        'add_new_item'      => __( 'Add New Category' ),
+        'new_item_name'     => __( 'New Category Name' ),
+        'menu_name'         => __( 'Categories' ),
+    );
+
+    $args = array(
+        'hierarchical'      => true, // Set this to 'false' for non-hierarchical taxonomy (like tags)
+        'labels'            => $labels,
+        'show_ui'           => true,
+		'show_in_nav_menus' => true,
+		'publicly_queryable' => true,
+		'exclude_from_search' => false,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'rewrite' 			=> array( 'slug' => 'urlproject/arsip', 'with_front' => true ),
+		'has_archive' 		=> true
+    );
+
+    register_taxonomy( 'urlproject_categories', array( 'urlproject' ), $args );
+}
+
+/*
+ * create metabox
+ */
+add_action( 'admin_init', 'urlproject_admin' );
+
+function urlproject_admin() {
+add_meta_box( 
+	'urlproject_meta_box',
+	'urlproject Details',
+	'display_urlproject_meta_box',
+	'urlproject', 'normal', 'high' 
+	);
+}
+
+function display_urlproject_meta_box( $urlproject ) {
+// metabox list
+$urlwebsite = esc_html( get_post_meta( $urlproject->ID, 'urlwebsite', true ) );
+$urlpost = esc_html( get_post_meta( $urlproject->ID, 'urlpost', true ) );
+?>
+<table>
+	<tr>
+		<td style="width: 100%">URL Demo</td>
+		<td><input type="text" size="80" name="urlproject_urlwebsite" value="<?php echo $urlwebsite; ?>" /></td>
+	</tr>
+	<tr>
+		<td style="width: 100%">URL Post</td>
+		<td><input type="text" size="80" name="urlproject_urlpost" value="<?php echo $urlpost; ?>" /></td>
+	</tr>
+</table>
+<?php }
+
+add_action( 'save_post',
+'add_urlproject_fields', 10, 2 );
+
+function add_urlproject_fields( $urlproject_id,
+$urlproject ) {
+// Check post type for User Profile
+if ( $urlproject->post_type == 'urlproject' ) {
+// Store data in post meta table if present in post data
+
+if ( isset( $_POST['urlproject_urlwebsite'] ) &&
+$_POST['urlproject_urlwebsite'] != '' ) {
+update_post_meta( $urlproject_id, 'urlwebsite',
+$_POST['urlproject_urlwebsite'] );
+}// Field Website
+if ( isset( $_POST['urlproject_urlpost'] ) &&
+$_POST['urlproject_urlpost'] != '' ) {
+update_post_meta( $urlproject_id, 'urlpost',
+$_POST['urlproject_urlpost'] );
+}// Field Website
+}
+}
+add_filter( 'template_include',
+'design_urltemplate_function', 1 );
+
+// Load Template from themes
+function design_urltemplate_function( $template_path ) {
+if ( get_post_type() == 'urlproject' ) {
+	if ( is_single() ) { $template_path = plugin_dir_path( __FILE__ ) .'/template/single-urlproject-preview.php';}
+}
+return $template_path;
+}
+
+?>

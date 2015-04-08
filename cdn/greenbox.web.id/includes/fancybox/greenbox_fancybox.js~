@@ -1,0 +1,32 @@
+$(document).ready(function() {
+$(".gallery a").fancybox({
+    minWidth: 400, // so fancybox doesn't shrink way too much
+    
+    beforeShow: function () {
+		if (this.title) {
+                
+        this.title += '<br />'; // Line break after title
+
+        this.title += '<div class="fb-container"><div class="fb-comments" data-href="' + this.href + '" data-num-posts="5"></div></div>';
+		}
+    },
+    afterShow: function () {
+        FB.XFBML.parse();
+        $.fancybox.update(); // resize after show
+    },
+	helpers: {
+        title: {
+            type: 'inside'
+        }
+    },
+		padding: 0,
+		openEffect: 'fade',
+		closeEffect: 'fade',
+		topRatio: 0,
+		fitToView: false,
+		scrolling: 'yes',
+		loop: true 
+
+});
+}); // end ready
+

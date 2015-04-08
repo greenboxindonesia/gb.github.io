@@ -1,0 +1,53 @@
+(function($) {
+ 
+    // Initialize the Lightbox for any links with the 'fancybox' class
+$(".fancybox").fancybox({
+    minWidth: 400, // so fancybox doesn't shrink way too much
+    
+    beforeShow: function () {
+		if (this.title) {
+                
+        this.title += '<br />'; // Line break after title
+
+        this.title += '<div class="fb-container"><div class="fb-comments" data-href="' + this.href + '" data-num-posts="5"></div></div>';
+		}
+    },
+    afterShow: function () {
+        FB.XFBML.parse();
+        $.fancybox.update(); // resize after show
+    },
+	helpers: {
+        title: {
+            type: 'inside'
+        }
+    },
+		padding: 0,
+		openEffect: 'fade',
+		closeEffect: 'fade',
+		topRatio: 0,
+		fitToView: false,
+		scrolling: 'yes',
+		loop: true 
+
+});
+ 
+    // Initialize the Lightbox automatically for any links to images with extensions .jpg, .jpeg, .png or .gif
+    $("a[href$='.jpg'], a[href$='.png'], a[href$='.jpeg'], a[href$='.gif']").fancybox();
+ 
+    // Initialize the Lightbox and add rel="gallery" to all gallery images when the gallery is set up using [gallery link="file"] so that a Lightbox Gallery exists
+    $(".gallery a[href$='.jpg'], .gallery a[href$='.png'], .gallery a[href$='.jpeg'], .gallery a[href$='.gif']").attr('rel','gallery').fancybox();
+ 
+    // Initalize the Lightbox for any links with the 'video' class and provide improved video embed support
+    $(".video").fancybox({
+        maxWidth        : 800,
+        maxHeight       : 600,
+        fitToView       : false,
+        width           : '70%',
+        height          : '70%',
+        autoSize        : false,
+        closeClick      : false,
+        openEffect      : 'none',
+        closeEffect     : 'none'
+    });
+ 
+})(jQuery);
